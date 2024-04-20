@@ -12,9 +12,7 @@
       "@shared/*": ["app/shared/*"],
       "@environment/*": ["environments/*"]
     },
-    "typeRoots": [
-      "src/types",
-    ],
+    "typeRoots": ["src/types"],
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
@@ -31,10 +29,7 @@
     "target": "ES2022",
     "module": "ES2022",
     "useDefineForClassFields": false,
-    "lib": [
-      "ES2022",
-      "dom"
-    ]
+    "lib": ["ES2022", "dom"]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
