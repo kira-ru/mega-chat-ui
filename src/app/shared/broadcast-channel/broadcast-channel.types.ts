@@ -1,15 +1,16 @@
-export interface BroadcastChannelEvent {
-  type: BroadcastChannelEventType,
-  userId: string,
+export interface BroadcastChannelEvent<T = unknown> {
+  type: BroadcastChannelEventType;
+  payload?: T;
 }
 
-export interface MessageEvent extends BroadcastChannelEvent {
-  payload: Record<string, unknown> | string | number,
+export interface UserMessage {
+  userId: string | number;
+  message: string;
 }
 
 export enum BroadcastChannelEventType {
-  INIT='init',
-  START_TYPING='start_typing_message',
-  END_TYPING='end_typing_message',
-  NEW_MESSAGE='new_message',
+  INIT = 'init',
+  START_TYPING = 'start_typing_message',
+  END_TYPING = 'end_typing_message',
+  NEW_MESSAGE = 'new_message',
 }
