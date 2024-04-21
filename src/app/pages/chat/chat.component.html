@@ -1,0 +1,20 @@
+<panel>
+  <section class="chat-window">
+    <div class="item">1</div>
+    <div class="item">
+      <app-dialog [dialog]="(dialog$ | async) ?? []"></app-dialog>
+    </div>
+    <div class="item">
+      <form (ngSubmit)="onSubmit()" [formGroup]="form">
+        <mat-form-field class="example-form-field full-width">
+          <input formControlName="message" matInput type="text">
+          <button *ngIf="form.get('message')?.value" aria-label="post-message" mat-icon-button matSuffix
+                  type="submit">
+            <mat-icon>send</mat-icon>
+          </button>
+        </mat-form-field>
+      </form>
+    </div>
+  </section>
+</panel>
+

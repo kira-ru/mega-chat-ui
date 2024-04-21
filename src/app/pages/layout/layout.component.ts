@@ -1,15 +1,13 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {PanelComponent} from "@shared/panel/panel.component";
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'layout',
   standalone: true,
-  imports: [CommonModule, PanelComponent],
+  imports: [CommonModule, RouterOutlet],
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LayoutComponent {
-
-}
+export class LayoutComponent {}
