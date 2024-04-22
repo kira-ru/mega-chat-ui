@@ -4,7 +4,7 @@ export interface BroadcastChannelEvent<T = unknown> {
 }
 
 export interface UserMessage {
-  userId: string | number;
+  tabId: string | number;
   message: string;
 }
 

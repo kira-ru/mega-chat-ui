@@ -25,10 +25,13 @@ export class BroadcastChannelService implements OnDestroy {
     this._broadCastChannel.postMessage(message);
   }
 
-  public messagesByType(type: BroadcastChannelEventType): Observable<BroadcastChannelEvent> {
+  public messagesByType(
+    types: BroadcastChannelEventType | BroadcastChannelEventType[]
+  ): Observable<BroadcastChannelEvent> {
+    const wrappedTypes = Array.isArray(types) ? types : [types];
     return this.messageStream$.pipe(
       runInZone(this.ngZone),
-      filter((message) => message.type === type)
+      filter((message) => wrappedTypes.includes(message.type))
     );
   }
 }

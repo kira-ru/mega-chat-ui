@@ -1,7 +1,14 @@
 <section class="dialog">
-  <p *ngFor="let messageInfo of dialog">
-    <label>{{ messageInfo.userId }}</label>
+  <p *ngFor="let messageInfo of dialog" class="dialog__message">
+    <label class="dialog__tabId">{{ messageInfo.tabId }}</label>
     {{ messageInfo.message }}
+  </p>
+  <p *ngIf="typingTabsIds.length" class="dialog__typing-tabs">
+    tab
+    <span *ngFor="let tabId of typingTabsIds;let last = last;">
+      {{ last ? tabId : tabId + ',' }}
+    </span>
+    is typing
   </p>
 </section>
 

@@ -12,4 +12,6 @@ import { UserMessage } from '@shared/broadcast-channel/broadcast-channel.types';
 })
 export class DialogComponent {
   @Input() dialog: UserMessage[] = [];
+
+  @Input() typingTabsIds: number[] = [];
 }

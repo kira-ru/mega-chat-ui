@@ -8,7 +8,7 @@ const STORAGE_PREFIX = 'dialog-storage';
 @Injectable({
   providedIn: 'root',
 })
-export class Storage<T extends Record<string, unknown>> implements OnDestroy {
+export class Storage implements OnDestroy {
   protected storageKey = `${STORAGE_PREFIX}`;
   protected storage = localStorage;
 

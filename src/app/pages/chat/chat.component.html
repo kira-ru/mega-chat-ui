@@ -2,7 +2,7 @@
   <section class="chat-window">
     <div class="item">1</div>
     <div class="item">
-      <app-dialog [dialog]="history"></app-dialog>
+      <app-dialog [dialog]="history" [typingTabsIds]="typingTabsIds"></app-dialog>
     </div>
     <div class="item">
       <form (ngSubmit)="onSubmit()" [formGroup]="form">
