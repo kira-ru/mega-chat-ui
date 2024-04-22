@@ -1,5 +1,4 @@
 import { Storage } from '@shared/core/storage.service';
-import { UserMessage } from '@shared/broadcast-channel/broadcast-channel.types';
 import { Observable } from 'rxjs';
 import { APP_INITIALIZER, Provider } from '@angular/core';
 
@@ -12,7 +11,7 @@ export const InitProviders: Provider[] = [
   },
 ];
 
-function init(storage: Storage<{ dialog: UserMessage[]; activeTabs: { isActive: boolean; id: number }[] }>) {
+function init(storage: Storage) {
   return () =>
     new Observable<void>((observer) => {
       storage.initialize();
