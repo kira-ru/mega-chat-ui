@@ -8,8 +8,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { PanelComponent } from '@shared/panel/panel.component';
 import { AbstractControl, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { BroadcastChannelEventType, UserMessage } from '@shared/broadcast-channel/broadcast-channel.types';
-import { debounceTime, map, Observable, tap, throttleTime } from 'rxjs';
+import {
+  BroadcastChannelEvent,
+  BroadcastChannelEventType,
+  UserMessage,
+} from '@shared/broadcast-channel/broadcast-channel.types';
+import { debounceTime, Observable, tap, throttleTime } from 'rxjs';
 import { BroadcastChannelService } from '@shared/broadcast-channel/broadcast-channel.service';
 import { MessageForm } from '@app/app.component';
 import { Storage } from '@shared/core/storage.service';
@@ -40,16 +44,13 @@ export class ChatComponent {
 
   public history: UserMessage[] = (this.storage.getItem('dialog') as UserMessage[]) ?? [];
 
-  public dialog$: Observable<UserMessage[]> = this.broadcastChannelService
+  public dialog$: Observable<BroadcastChannelEvent> = this.broadcastChannelService
     .messagesByType(BroadcastChannelEventType.NEW_MESSAGE)
     .pipe(
-      tap((newMessage) => {
-        this.history = [...this.storage.items.dialog, newMessage.payload as UserMessage];
-        this.storage.setItem('dialog', this.history);
-        this.storage.items;
+      tap(() => {
+        this.history = this.storage.items.dialog;
         this.cdr.markForCheck();
-      }),
-      map(() => this.history)
+      })
     );
 
   private _isUserTyping = false;
@@ -100,11 +101,14 @@ export class ChatComponent {
       message: this.messageControl.value,
       userId: `TAB ${this.tab}`,
     } as UserMessage;
+
+    this.history = [...this.history, payload];
+    this.storage.setItem('dialog', this.history);
+
     this.broadcastChannelService.postMessage<UserMessage>({
       type: BroadcastChannelEventType.NEW_MESSAGE,
       payload,
     });
     this.messageControl.reset();
-    this.history = [...this.history, payload];
   }
 }
