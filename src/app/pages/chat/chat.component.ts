@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DialogComponent } from '@shared/dialog/dialog.component';
 import { LayoutComponent } from '@pages/layout/layout.component';
@@ -12,6 +12,8 @@ import { BroadcastChannelEventType, UserMessage } from '@shared/broadcast-channe
 import { debounceTime, map, Observable, tap, throttleTime } from 'rxjs';
 import { BroadcastChannelService } from '@shared/broadcast-channel/broadcast-channel.service';
 import { MessageForm } from '@app/app.component';
+import { Storage } from '@shared/core/storage.service';
+import { TAB_NUMBER } from '@app/config/providers/tab.provider';
 
 @Component({
   selector: 'chat',
@@ -36,13 +38,16 @@ export class ChatComponent {
     message: ['', { validators: [Validators.required] }],
   });
 
-  public history: UserMessage[] = [];
+  public history: UserMessage[] = (this.storage.getItem('dialog') as UserMessage[]) ?? [];
 
   public dialog$: Observable<UserMessage[]> = this.broadcastChannelService
     .messagesByType(BroadcastChannelEventType.NEW_MESSAGE)
     .pipe(
       tap((newMessage) => {
-        this.history = [...this.history, newMessage.payload as UserMessage];
+        this.history = [...this.storage.items.dialog, newMessage.payload as UserMessage];
+        this.storage.setItem('dialog', this.history);
+        this.storage.items;
+        this.cdr.markForCheck();
       }),
       map(() => this.history)
     );
@@ -71,12 +76,19 @@ export class ChatComponent {
   );
 
   constructor(
+    @Inject(TAB_NUMBER) private tab: number,
     private broadcastChannelService: BroadcastChannelService,
-    private formBuilder: NonNullableFormBuilder
+    private formBuilder: NonNullableFormBuilder,
+    private storage: Storage<{ dialog: UserMessage[] }>,
+    private cdr: ChangeDetectorRef
   ) {
+    if (!this.storage.getItem('dialog')) {
+      this.storage.setItem('dialog', []);
+    }
     this.messageControl.valueChanges.pipe();
     this._startTyping$.subscribe();
     this._endTyping$.subscribe();
+    this.dialog$.subscribe();
   }
 
   public get messageControl(): AbstractControl<string, string> {
@@ -84,13 +96,15 @@ export class ChatComponent {
   }
 
   onSubmit() {
+    const payload = {
+      message: this.messageControl.value,
+      userId: `TAB ${this.tab}`,
+    } as UserMessage;
     this.broadcastChannelService.postMessage<UserMessage>({
       type: BroadcastChannelEventType.NEW_MESSAGE,
-      payload: {
-        message: this.messageControl.value,
-        userId: 'Вкладка 1',
-      },
+      payload,
     });
     this.messageControl.reset();
+    this.history = [...this.history, payload];
   }
 }

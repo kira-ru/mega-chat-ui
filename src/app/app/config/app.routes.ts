@@ -2,11 +2,12 @@ import { Routes } from '@angular/router';
 
 export const routes: Routes = [
   {
-    path: '',
+    path: 'chat',
     loadComponent: () => import('@pages/layout/layout.component').then((c) => c.LayoutComponent),
+    title: 'Tab 1',
     children: [
       {
-        path: 'chat',
+        path: '',
         loadComponent: () => import('@pages/chat/chat.component').then((c) => c.ChatComponent),
       },
     ],
@@ -14,6 +15,5 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: 'chat',
-    title: 'Tab 1',
   },
 ];
