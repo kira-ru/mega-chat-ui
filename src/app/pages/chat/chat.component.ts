@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DialogComponent } from '@shared/dialog/dialog.component';
 import { LayoutComponent } from '@pages/layout/layout.component';
@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { PanelComponent } from '@shared/panel/panel.component';
 import { AbstractControl, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BroadcastChannelEventType, UserMessage } from '@shared/services/broadcast-channel/broadcast-channel.types';
-import { debounceTime, map, Observable, startWith, tap, throttleTime } from 'rxjs';
+import { debounceTime, map, merge, Observable, startWith, Subject, takeUntil, tap, throttleTime } from 'rxjs';
 import { BroadcastChannelService } from '@shared/services/broadcast-channel/broadcast-channel.service';
 import { Storage } from '@shared/services/storage.service';
 import { TAB_NUMBER } from '@app/config/providers/tab.provider';
@@ -35,10 +35,12 @@ import { MessageForm } from '@pages/chat/chat.types';
   styleUrls: ['./chat.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ChatComponent {
+export class ChatComponent implements OnDestroy {
   public form: MessageForm = this.formBuilder.group({
     message: ['', { validators: [Validators.required] }],
   });
+
+  public typingTabsIds: number[] = [];
 
   public history: UserMessage[] = this.storage.getItem('dialog') ?? [];
 
@@ -55,8 +57,7 @@ export class ChatComponent {
       startWith(this.history)
     );
 
-  public typingTabsIds: number[] = [];
-  public typingStream$ = this.broadcastChannelService
+  private _typingStream$ = this.broadcastChannelService
     .messagesByType([BroadcastChannelEventType.START_TYPING, BroadcastChannelEventType.END_TYPING])
     .pipe(
       tap((event) => {
@@ -74,7 +75,6 @@ export class ChatComponent {
   private _startTyping$ = this.messageControl.valueChanges.pipe(
     throttleTime(2000),
     tap(() => {
-      console.log('start');
       if (this._isUserTyping) return;
       this.broadcastChannelService.postMessage({
         type: BroadcastChannelEventType.START_TYPING,
@@ -87,7 +87,6 @@ export class ChatComponent {
   private _endTyping$ = this.messageControl.valueChanges.pipe(
     debounceTime(2000),
     tap(() => {
-      console.log('end');
       this._isUserTyping = false;
       this.broadcastChannelService.postMessage({
         type: BroadcastChannelEventType.END_TYPING,
@@ -96,6 +95,10 @@ export class ChatComponent {
     })
   );
 
+  private unsub: Subject<void> = new Subject();
+
+  private allMessages$ = merge(this._startTyping$, this._endTyping$, this._typingStream$).pipe(takeUntil(this.unsub));
+
   constructor(
     @Inject(TAB_NUMBER) private readonly CURRENT_TAB: number,
     private broadcastChannelService: BroadcastChannelService,
@@ -103,20 +106,20 @@ export class ChatComponent {
     private storage: Storage,
     private cdr: ChangeDetectorRef
   ) {
-    if (!this.storage.getItem('dialog')) {
-      this.storage.setItem('dialog', []);
-    }
-    this._startTyping$.subscribe();
-    this._endTyping$.subscribe();
-    this.typingStream$.subscribe();
+    this.allMessages$.subscribe();
   }
 
-  get tabId(): number {
+  public get tabId(): number {
     return this.CURRENT_TAB;
   }
 
   public get messageControl(): AbstractControl<string, string> {
     return this.form.controls['message'];
+  }
+
+  ngOnDestroy(): void {
+    this.unsub.next();
+    this.unsub.complete();
   }
 
   // @HostListener('window:beforeunload', ['$event'])
