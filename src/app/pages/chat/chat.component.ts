@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { PanelComponent } from '@shared/panel/panel.component';
 import { AbstractControl, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BroadcastChannelEventType, UserMessage } from '@shared/services/broadcast-channel/broadcast-channel.types';
-import { debounceTime, map, merge, Observable, startWith, Subject, takeUntil, tap, throttleTime } from 'rxjs';
+import { debounceTime, filter, map, merge, Observable, startWith, Subject, takeUntil, tap, throttleTime } from 'rxjs';
 import { BroadcastChannelService } from '@shared/services/broadcast-channel/broadcast-channel.service';
 import { Storage } from '@shared/services/storage.service';
 import { TAB_NUMBER } from '@app/config/providers/tab.provider';
@@ -50,6 +50,7 @@ export class ChatComponent implements OnDestroy {
       map((event) => {
         const history = this.storage.getItem('dialog');
         if (event.type === BroadcastChannelEventType.NEW_MESSAGE) {
+          this.typingTabsIds = this.typingTabsIds.filter((tab) => tab !== (event.payload as UserMessage).tabId);
           this.history = history;
         }
         return history;
@@ -57,7 +58,7 @@ export class ChatComponent implements OnDestroy {
       startWith(this.history)
     );
 
-  private _typingStream$ = this.broadcastChannelService
+  private _inputTypingState$ = this.broadcastChannelService
     .messagesByType([BroadcastChannelEventType.START_TYPING, BroadcastChannelEventType.END_TYPING])
     .pipe(
       tap((event) => {
@@ -74,8 +75,8 @@ export class ChatComponent implements OnDestroy {
 
   private _startTyping$ = this.messageControl.valueChanges.pipe(
     throttleTime(2000),
+    filter(() => !this._isUserTyping),
     tap(() => {
-      if (this._isUserTyping) return;
       this.broadcastChannelService.postMessage({
         type: BroadcastChannelEventType.START_TYPING,
         payload: this.CURRENT_TAB,
@@ -97,7 +98,9 @@ export class ChatComponent implements OnDestroy {
 
   private unsub: Subject<void> = new Subject();
 
-  private allMessages$ = merge(this._startTyping$, this._endTyping$, this._typingStream$).pipe(takeUntil(this.unsub));
+  private allMessages$ = merge(this._startTyping$, this._endTyping$, this._inputTypingState$).pipe(
+    takeUntil(this.unsub)
+  );
 
   constructor(
     @Inject(TAB_NUMBER) private readonly CURRENT_TAB: number,
@@ -122,27 +125,16 @@ export class ChatComponent implements OnDestroy {
     this.unsub.complete();
   }
 
-  // @HostListener('window:beforeunload', ['$event'])
-  // handleTabClose(event: BeforeUnloadEvent) {
-  //   event.returnValue = 'Are you sure';
-  //   this.storage.setItem(
-  //     'activeTabs',
-  //     this.storage.items.activeTabs.map((tab) => {
-  //       if (tab.id !== this.CURRENT_TAB) return tab;
-  //       tab.isActive = false;
-  //       return tab;
-  //     })
-  //   );
-  // }
-
   onSubmit() {
     if (this.form.invalid) return;
     const payload = {
       message: this.messageControl.value,
       tabId: this.CURRENT_TAB,
     } as UserMessage;
+
     this.history.push(payload);
     this.storage.setItem('dialog', this.history);
+
     this.broadcastChannelService.postMessage<UserMessage>({
       type: BroadcastChannelEventType.NEW_MESSAGE,
       payload,

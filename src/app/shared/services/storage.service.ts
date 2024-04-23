@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { UserMessage } from '@shared/services/broadcast-channel/broadcast-channel.types';
 
-type StorageType = { dialog: UserMessage[]; activeTabs: { isActive: boolean; id: number }[] } | Record<string, never>;
+type StorageType = { dialog: UserMessage[]; activeTabs: number[] } | Record<string, never>;
 
 const STORAGE_PREFIX = 'dialog-storage';
 
@@ -10,6 +10,7 @@ const STORAGE_PREFIX = 'dialog-storage';
 })
 export class Storage implements OnDestroy {
   protected storageKey = `${STORAGE_PREFIX}`;
+
   protected storage = localStorage;
 
   public get items(): StorageType {
@@ -18,6 +19,8 @@ export class Storage implements OnDestroy {
     try {
       parsedValues = JSON.parse(storedValues);
     } catch (e) {
+      console.log('ERROR');
+      console.error('ERROR');
       parsedValues = {};
     }
     return parsedValues;
@@ -53,6 +56,8 @@ export class Storage implements OnDestroy {
     try {
       this.storage.setItem(key, value);
     } catch (e) {
+      console.log('ERROR');
+      console.error('ERROR');
       this.storage.clear();
       this.storage.setItem(key, value);
     }
