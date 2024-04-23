@@ -8,13 +8,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { PanelComponent } from '@shared/panel/panel.component';
 import { AbstractControl, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { BroadcastChannelEventType, UserMessage } from '@shared/broadcast-channel/broadcast-channel.types';
+import { BroadcastChannelEventType, UserMessage } from '@shared/services/broadcast-channel/broadcast-channel.types';
 import { debounceTime, map, Observable, startWith, tap, throttleTime } from 'rxjs';
-import { BroadcastChannelService } from '@shared/broadcast-channel/broadcast-channel.service';
-import { MessageForm } from '@app/app.component';
-import { Storage } from '@shared/core/storage.service';
+import { BroadcastChannelService } from '@shared/services/broadcast-channel/broadcast-channel.service';
+import { Storage } from '@shared/services/storage.service';
 import { TAB_NUMBER } from '@app/config/providers/tab.provider';
 import { ProfileComponent } from '@shared/profile/profile.component';
+import { MessageForm } from '@pages/chat/chat.types';
 
 @Component({
   selector: 'chat',
@@ -39,7 +39,8 @@ export class ChatComponent {
   public form: MessageForm = this.formBuilder.group({
     message: ['', { validators: [Validators.required] }],
   });
-  public history: UserMessage[] = (this.storage.getItem('dialog') as UserMessage[]) ?? [];
+
+  public history: UserMessage[] = this.storage.getItem('dialog') ?? [];
 
   public dialog$: Observable<UserMessage[]> = this.broadcastChannelService
     .messagesByType([BroadcastChannelEventType.NEW_MESSAGE, BroadcastChannelEventType.MESSAGE])
@@ -73,6 +74,7 @@ export class ChatComponent {
   private _startTyping$ = this.messageControl.valueChanges.pipe(
     throttleTime(2000),
     tap(() => {
+      console.log('start');
       if (this._isUserTyping) return;
       this.broadcastChannelService.postMessage({
         type: BroadcastChannelEventType.START_TYPING,
@@ -85,6 +87,7 @@ export class ChatComponent {
   private _endTyping$ = this.messageControl.valueChanges.pipe(
     debounceTime(2000),
     tap(() => {
+      console.log('end');
       this._isUserTyping = false;
       this.broadcastChannelService.postMessage({
         type: BroadcastChannelEventType.END_TYPING,
@@ -103,10 +106,8 @@ export class ChatComponent {
     if (!this.storage.getItem('dialog')) {
       this.storage.setItem('dialog', []);
     }
-    this.messageControl.valueChanges.pipe();
     this._startTyping$.subscribe();
     this._endTyping$.subscribe();
-    // this.dialog$.subscribe();
     this.typingStream$.subscribe();
   }
 
@@ -139,7 +140,6 @@ export class ChatComponent {
     } as UserMessage;
     this.history.push(payload);
     this.storage.setItem('dialog', this.history);
-    console.log('submit', this.storage.items.dialog);
     this.broadcastChannelService.postMessage<UserMessage>({
       type: BroadcastChannelEventType.NEW_MESSAGE,
       payload,

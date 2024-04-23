@@ -1,0 +1,15 @@
+$input-height: 45px;
+
+mat-form-field {
+  .mdc-text-field--filled {
+    height: $input-height;
+  }
+
+  .mdc-text-field {
+    border-top-left-radius: var(--mdc-shape-small, 4px);
+    border-top-right-radius: var(--mdc-shape-small, 4px);
+    border-bottom-right-radius: var(--mdc-shape-small, 4px);
+    border-bottom-left-radius: var(--mdc-shape-small, 4px);
+  }
+
+}

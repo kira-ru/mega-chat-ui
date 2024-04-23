@@ -1,3 +1,8 @@
+@import '../../../styles/vars';
+
+$image-size: 50px;
+$image-size-s: 35px;
+
 :host {
   display: block;
 }
@@ -6,13 +11,33 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: $padding-es;
 
 
   &__img {
+    position: relative;
     border-radius: 50%;
-    width: 50px;
-    height: 50px;
+    width: $image-size;
+    height: $image-size;
     overflow: hidden;
+
+    img {
+      background-position: center center;
+    }
+  }
+
+  &__tabId {
+    font-size: 0.75em;
+  }
+
+  @media (max-width: $mobile-screen) {
+    &__img {
+      width: $image-size-s;
+      height: $image-size-s;
+    }
+
+    &__tabId {
+      font-size: 0.6em;
+    }
   }
 }

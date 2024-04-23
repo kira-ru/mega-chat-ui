@@ -1,6 +1,9 @@
 import { Injectable, NgZone, OnDestroy } from '@angular/core';
 import { filter, Observable, Subject } from 'rxjs';
-import { BroadcastChannelEvent, BroadcastChannelEventType } from '@shared/broadcast-channel/broadcast-channel.types';
+import {
+  BroadcastChannelEvent,
+  BroadcastChannelEventType,
+} from '@shared/services/broadcast-channel/broadcast-channel.types';
 import { runInZone } from '@shared/operators/run-in-zone.operator';
 
 @Injectable({

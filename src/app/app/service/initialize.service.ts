@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Storage } from '@shared/core/storage.service';
+import { Storage } from '@shared/services/storage.service';
 import { Title } from '@angular/platform-browser';
 import { TAB_NUMBER } from '@app/config/providers/tab.provider';
 

@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { UserMessage } from '@shared/broadcast-channel/broadcast-channel.types';
+import { UserMessage } from '@shared/services/broadcast-channel/broadcast-channel.types';
 
 type StorageType = { dialog: UserMessage[]; activeTabs: { isActive: boolean; id: number }[] } | Record<string, never>;
 

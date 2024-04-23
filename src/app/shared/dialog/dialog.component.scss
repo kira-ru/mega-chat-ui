@@ -1,3 +1,5 @@
+@import '../../../styles/vars';
+
 :host {
   display: block;
   height: 100%;
@@ -9,8 +11,8 @@
   box-sizing: border-box;
   flex-direction: column-reverse;
   overflow-y: auto;
-  border-radius: 16px;
-  padding: 16px;
+  border-radius: $border-radius;
+  padding: $padding-m;
 
   &__wrapper {
     display: flex;
@@ -21,7 +23,7 @@
   &__message {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: $padding-es;
 
     &-right {
       align-items: end;
@@ -34,11 +36,11 @@
 
   &__tabId {
     font-size: 0.75em;
-    color: dodgerblue;
+    color: $blue;
   }
 
   &__typing-tabs {
     font-size: 0.75em;
-    color: dodgerblue;
+    color: $blue;
   }
 }

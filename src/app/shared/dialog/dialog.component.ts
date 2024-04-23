@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { UserMessage } from '@shared/broadcast-channel/broadcast-channel.types';
+import { UserMessage } from '@shared/services/broadcast-channel/broadcast-channel.types';
 
 @Component({
   selector: 'app-dialog',

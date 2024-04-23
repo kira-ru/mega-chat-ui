@@ -1,14 +1,20 @@
+@import '../../../styles/vars';
+
+$row-height: 60px;
+$row-height-mobile: 40px;
+
 :host {
   display: block;
+  width: 60%;
 }
 
 .chat {
   &__window {
     height: 100%;
     display: grid;
-    gap: 8px;
-    grid-template-columns: 60px 1fr;
-    grid-template-rows: 1fr 57px;
+    gap: $padding-s;
+    grid-template-columns: $row-height 1fr;
+    grid-template-rows: 1fr $row-height;
   }
 
   &__profile {
@@ -20,4 +26,29 @@
   &__dialog {
     overflow-y: auto;
   }
+
+  &__form-field {
+    width: 100%;
+  }
+}
+
+@media (max-width: $mobile-screen) {
+  :host {
+    width: 90%;
+  }
+
+  .chat {
+    &__window {
+      grid-template-columns: 1fr;
+      grid-template-rows: $row-height-mobile 1fr $row-height-mobile;
+      gap: $padding-lg;
+    }
+
+    &__profile {
+      grid-row: 1;
+      display: flex;
+      justify-content: end;
+    }
+  }
+
 }

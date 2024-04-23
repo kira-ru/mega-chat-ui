@@ -1,16 +1,22 @@
+@import '../../../styles/vars';
+
 :host {
   display: block;
 }
 
 .panel {
-  -webkit-box-shadow: -1px 0px 13px -3px rgba(34, 60, 80, 0.6);
-  -moz-box-shadow: -1px 0px 13px -3px rgba(34, 60, 80, 0.6);
   box-shadow: -1px 0px 13px -3px rgba(34, 60, 80, 0.6);
 
-  //todo vars
-  background-color: gainsboro;
-  border-radius: 8px;
-  padding: 16px;
-  width: 600px;
-  height: 300px;
+  background-color: $white;
+  border-radius: $border-radius;
+  padding: $padding-m;
+  height: 70vh;
+  min-height: 400px;
+  min-width: 350px;
+}
+
+@media (max-width: $mobile-screen) {
+  .panel {
+    height: 90vh;
+  }
 }
