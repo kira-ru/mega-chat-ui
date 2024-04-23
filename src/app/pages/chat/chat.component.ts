@@ -74,7 +74,7 @@ export class ChatComponent implements OnDestroy {
   private _isUserTyping = false;
 
   private _startTyping$ = this.messageControl.valueChanges.pipe(
-    throttleTime(2000),
+    throttleTime(1500),
     filter(() => !this._isUserTyping),
     tap(() => {
       this.broadcastChannelService.postMessage({
@@ -86,7 +86,7 @@ export class ChatComponent implements OnDestroy {
   );
 
   private _endTyping$ = this.messageControl.valueChanges.pipe(
-    debounceTime(2000),
+    debounceTime(1000),
     tap(() => {
       this._isUserTyping = false;
       this.broadcastChannelService.postMessage({
@@ -135,14 +135,17 @@ export class ChatComponent implements OnDestroy {
     this.history.push(payload);
     this.storage.setItem('dialog', this.history);
 
-    this.broadcastChannelService.postMessage<UserMessage>({
-      type: BroadcastChannelEventType.NEW_MESSAGE,
-      payload,
-    });
-    this.broadcastChannelService.postMessage<number>({
-      type: BroadcastChannelEventType.END_TYPING,
-      payload: this.CURRENT_TAB,
-    });
+    setTimeout(() => {
+      this.broadcastChannelService.postMessage<UserMessage>({
+        type: BroadcastChannelEventType.NEW_MESSAGE,
+        payload,
+      });
+      this.broadcastChannelService.postMessage<number>({
+        type: BroadcastChannelEventType.END_TYPING,
+        payload: this.CURRENT_TAB,
+      });
+    }, 0);
+
     this._isUserTyping = false;
     this.broadcastChannelService.messageStream$.next({ type: BroadcastChannelEventType.MESSAGE, payload });
     this.messageControl.reset();
