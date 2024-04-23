@@ -9,8 +9,8 @@ export interface UserMessage {
 }
 
 export enum BroadcastChannelEventType {
-  INIT = 'init',
   START_TYPING = 'start_typing_message',
   END_TYPING = 'end_typing_message',
-  NEW_MESSAGE = 'new_message',
+  NEW_MESSAGE = 'new_message', //message by another tab
+  MESSAGE = 'message', //message by your tab
 }

@@ -1,25 +1,15 @@
-import { Storage } from '@shared/core/storage.service';
-import { Observable } from 'rxjs';
 import { APP_INITIALIZER, Provider } from '@angular/core';
+import { InitializeService } from '@app/service/initialize.service';
 
 export const InitProviders: Provider[] = [
   {
     provide: APP_INITIALIZER,
     useFactory: init,
-    deps: [Storage],
+    deps: [InitializeService],
     multi: true,
   },
 ];
 
-function init(storage: Storage) {
-  return () =>
-    new Observable<void>((observer) => {
-      storage.initialize();
-      const activeTabs = storage.items.activeTabs;
-      const freeTab = activeTabs.find((tab) => !tab.isActive);
-      if (!freeTab) {
-        storage.setItem('activeTabs', [...activeTabs, { isActive: false, id: activeTabs.length + 1 }]);
-      }
-      observer.complete();
-    });
+function init(initializeService: InitializeService) {
+  return () => initializeService.initialize();
 }

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DialogComponent } from '@shared/dialog/dialog.component';
 import { LayoutComponent } from '@pages/layout/layout.component';
@@ -8,16 +8,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { PanelComponent } from '@shared/panel/panel.component';
 import { AbstractControl, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import {
-  BroadcastChannelEvent,
-  BroadcastChannelEventType,
-  UserMessage,
-} from '@shared/broadcast-channel/broadcast-channel.types';
-import { debounceTime, Observable, tap, throttleTime } from 'rxjs';
+import { BroadcastChannelEventType, UserMessage } from '@shared/broadcast-channel/broadcast-channel.types';
+import { debounceTime, map, Observable, startWith, tap, throttleTime } from 'rxjs';
 import { BroadcastChannelService } from '@shared/broadcast-channel/broadcast-channel.service';
 import { MessageForm } from '@app/app.component';
 import { Storage } from '@shared/core/storage.service';
 import { TAB_NUMBER } from '@app/config/providers/tab.provider';
+import { ProfileComponent } from '@shared/profile/profile.component';
 
 @Component({
   selector: 'chat',
@@ -32,6 +29,7 @@ import { TAB_NUMBER } from '@app/config/providers/tab.provider';
     MatInputModule,
     PanelComponent,
     ReactiveFormsModule,
+    ProfileComponent,
   ],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.scss'],
@@ -43,13 +41,17 @@ export class ChatComponent {
   });
   public history: UserMessage[] = (this.storage.getItem('dialog') as UserMessage[]) ?? [];
 
-  public dialog$: Observable<BroadcastChannelEvent> = this.broadcastChannelService
-    .messagesByType(BroadcastChannelEventType.NEW_MESSAGE)
+  public dialog$: Observable<UserMessage[]> = this.broadcastChannelService
+    .messagesByType([BroadcastChannelEventType.NEW_MESSAGE, BroadcastChannelEventType.MESSAGE])
     .pipe(
-      tap(() => {
-        this.history = this.storage.items.dialog;
-        this.cdr.markForCheck();
-      })
+      map((event) => {
+        const history = this.storage.getItem('dialog');
+        if (event.type === BroadcastChannelEventType.NEW_MESSAGE) {
+          this.history = history;
+        }
+        return history;
+      }),
+      startWith(this.history)
     );
 
   public typingTabsIds: number[] = [];
@@ -62,7 +64,6 @@ export class ChatComponent {
         } else {
           this.typingTabsIds = this.typingTabsIds.filter((tab) => tab !== event.payload);
         }
-        console.log(this.typingTabsIds);
         this.cdr.markForCheck();
       })
     );
@@ -93,7 +94,7 @@ export class ChatComponent {
   );
 
   constructor(
-    @Inject(TAB_NUMBER) private CURRENT_TAB: number,
+    @Inject(TAB_NUMBER) private readonly CURRENT_TAB: number,
     private broadcastChannelService: BroadcastChannelService,
     private formBuilder: NonNullableFormBuilder,
     private storage: Storage,
@@ -105,40 +106,50 @@ export class ChatComponent {
     this.messageControl.valueChanges.pipe();
     this._startTyping$.subscribe();
     this._endTyping$.subscribe();
-    this.dialog$.subscribe();
+    // this.dialog$.subscribe();
     this.typingStream$.subscribe();
+  }
+
+  get tabId(): number {
+    return this.CURRENT_TAB;
   }
 
   public get messageControl(): AbstractControl<string, string> {
     return this.form.controls['message'];
   }
 
-  @HostListener('window:beforeunload', ['$event'])
-  handleTabClose(event: BeforeUnloadEvent) {
-    this.storage.setItem(
-      'activeTabs',
-      this.storage.items.activeTabs.map((tab) => {
-        if (tab.id !== this.CURRENT_TAB) return tab;
-        tab.isActive = false;
-        return tab;
-      })
-    );
-    console.log(event);
-  }
+  // @HostListener('window:beforeunload', ['$event'])
+  // handleTabClose(event: BeforeUnloadEvent) {
+  //   event.returnValue = 'Are you sure';
+  //   this.storage.setItem(
+  //     'activeTabs',
+  //     this.storage.items.activeTabs.map((tab) => {
+  //       if (tab.id !== this.CURRENT_TAB) return tab;
+  //       tab.isActive = false;
+  //       return tab;
+  //     })
+  //   );
+  // }
 
   onSubmit() {
+    if (this.form.invalid) return;
     const payload = {
       message: this.messageControl.value,
-      tabId: `TAB ${this.CURRENT_TAB}`,
+      tabId: this.CURRENT_TAB,
     } as UserMessage;
-
-    this.history = [...this.history, payload];
+    this.history.push(payload);
     this.storage.setItem('dialog', this.history);
-
+    console.log('submit', this.storage.items.dialog);
     this.broadcastChannelService.postMessage<UserMessage>({
       type: BroadcastChannelEventType.NEW_MESSAGE,
       payload,
     });
+    this.broadcastChannelService.postMessage<number>({
+      type: BroadcastChannelEventType.END_TYPING,
+      payload: this.CURRENT_TAB,
+    });
+    this._isUserTyping = false;
+    this.broadcastChannelService.messageStream$.next({ type: BroadcastChannelEventType.MESSAGE, payload });
     this.messageControl.reset();
   }
 }

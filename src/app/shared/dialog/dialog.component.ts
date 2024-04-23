@@ -11,7 +11,12 @@ import { UserMessage } from '@shared/broadcast-channel/broadcast-channel.types';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DialogComponent {
-  @Input() dialog: UserMessage[] = [];
+  @Input()
+  public dialog: UserMessage[] = [];
 
-  @Input() typingTabsIds: number[] = [];
+  @Input()
+  public typingTabsIds: number[] = [];
+
+  @Input()
+  public tabId!: number;
 }

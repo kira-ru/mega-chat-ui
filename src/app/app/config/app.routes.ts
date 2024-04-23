@@ -4,7 +4,6 @@ export const routes: Routes = [
   {
     path: 'chat',
     loadComponent: () => import('@pages/layout/layout.component').then((c) => c.LayoutComponent),
-    title: `TAB 1`,
     children: [
       {
         path: '',

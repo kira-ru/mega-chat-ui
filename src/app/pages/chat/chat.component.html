@@ -1,10 +1,16 @@
-<panel>
-  <section class="chat-window">
-    <div class="item">1</div>
-    <div class="item">
-      <app-dialog [dialog]="history" [typingTabsIds]="typingTabsIds"></app-dialog>
+<panel class="chat">
+  <section class="chat__window">
+    <div class="chat__profile">
+      <profile [tabId]="tabId"></profile>
     </div>
-    <div class="item">
+    <div class="chat__dialog">
+      <app-dialog
+        [dialog]="(dialog$ | async) ?? []"
+        [tabId]="tabId"
+        [typingTabsIds]="typingTabsIds"
+      ></app-dialog>
+    </div>
+    <div class="chat__input">
       <form (ngSubmit)="onSubmit()" [formGroup]="form">
         <mat-form-field class="example-form-field full-width">
           <input formControlName="message" matInput type="text">

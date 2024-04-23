@@ -2,17 +2,22 @@
   display: block;
 }
 
-.chat-window {
-  height: 100%;
-  display: grid;
-  grid-template-columns: 50px 1fr;
-  grid-template-rows: 1fr 50px;
-}
+.chat {
+  &__window {
+    height: 100%;
+    display: grid;
+    gap: 8px;
+    grid-template-columns: 60px 1fr;
+    grid-template-rows: 1fr 57px;
+  }
 
-.item {
-  border: 1px solid red;
-
-  &:first-of-type {
+  &__profile {
     grid-row: span 2;
+    display: flex;
+    justify-content: center;
+  }
+
+  &__dialog {
+    overflow-y: auto;
   }
 }

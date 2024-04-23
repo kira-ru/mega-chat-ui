@@ -6,10 +6,39 @@
 .dialog {
   height: 100%;
   display: flex;
-  flex-direction: column;
-  justify-content: end;
+  box-sizing: border-box;
+  flex-direction: column-reverse;
+  overflow-y: auto;
+  border-radius: 16px;
+  padding: 16px;
+
+  &__wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+  }
 
   &__message {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 
+    &-right {
+      align-items: end;
+    }
+  }
+
+  &__message-text {
+
+  }
+
+  &__tabId {
+    font-size: 0.75em;
+    color: dodgerblue;
+  }
+
+  &__typing-tabs {
+    font-size: 0.75em;
+    color: dodgerblue;
   }
 }

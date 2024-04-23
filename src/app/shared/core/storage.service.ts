@@ -49,12 +49,6 @@ export class Storage implements OnDestroy {
     this.storage.removeItem(this.storageKey);
   }
 
-  public initialize(): void {
-    const { dialog, activeTabs } = this.items;
-    if (!dialog) this.setItem('dialog', []);
-    if (!activeTabs) this.setItem('activeTabs', []);
-  }
-
   private wrappedSetItem(key: string, value: string): void {
     try {
       this.storage.setItem(key, value);
