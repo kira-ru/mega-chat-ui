@@ -19,8 +19,6 @@ export class Storage implements OnDestroy {
     try {
       parsedValues = JSON.parse(storedValues);
     } catch (e) {
-      console.log('ERROR');
-      console.error('ERROR');
       parsedValues = {};
     }
     return parsedValues;
@@ -56,8 +54,6 @@ export class Storage implements OnDestroy {
     try {
       this.storage.setItem(key, value);
     } catch (e) {
-      console.log('ERROR');
-      console.error('ERROR');
       this.storage.clear();
       this.storage.setItem(key, value);
     }

@@ -1,6 +1,6 @@
 <section class="dialog">
   <div class="dialog__wrapper">
-    <p *ngFor="let messageInfo of dialog" [ngClass]="{'dialog__message-right': messageInfo.tabId === tabId}"
+    <p *ngFor="let messageInfo of dialog" [ngClass]="{'dialog__message-right': messageInfo.tabId === senderTabId}"
        class="dialog__message">
       <label class="dialog__tabId">TAB-{{ messageInfo.tabId }}</label>
       <span class="dialog__message-text">

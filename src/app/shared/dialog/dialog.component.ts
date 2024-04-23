@@ -18,5 +18,5 @@ export class DialogComponent {
   public typingTabsIds: number[] = [];
 
   @Input()
-  public tabId!: number;
+  public senderTabId!: number;
 }

@@ -98,7 +98,7 @@ export class ChatComponent implements OnDestroy {
 
   private unsub: Subject<void> = new Subject();
 
-  private allMessages$ = merge(this._startTyping$, this._endTyping$, this._inputTypingState$).pipe(
+  private typingStreams$ = merge(this._startTyping$, this._endTyping$, this._inputTypingState$).pipe(
     takeUntil(this.unsub)
   );
 
@@ -109,7 +109,7 @@ export class ChatComponent implements OnDestroy {
     private storage: Storage,
     private cdr: ChangeDetectorRef
   ) {
-    this.allMessages$.subscribe();
+    this.typingStreams$.subscribe();
   }
 
   public get tabId(): number {

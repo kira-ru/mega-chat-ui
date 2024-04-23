@@ -1,20 +1,20 @@
 <panel class="chat">
   <section class="chat__window">
-    <div class="chat__profile chat__item">
+    <div class="chat__profile">
       <profile [tabId]="tabId"></profile>
     </div>
-    <div class="chat__dialog chat__item">
+    <div class="chat__dialog">
       <app-dialog
         [dialog]="(dialog$ | async) ?? []"
-        [tabId]="tabId"
+        [senderTabId]="tabId"
         [typingTabsIds]="typingTabsIds"
       ></app-dialog>
     </div>
-    <div class="chat__input chat__item">
+    <div class="chat__input">
       <form (ngSubmit)="onSubmit()" [formGroup]="form">
         <mat-form-field class="chat__form-field">
           <input formControlName="message" matInput type="text">
-          <button *ngIf="form.get('message')?.value" aria-label="post-message" mat-icon-button matSuffix
+          <button *ngIf="messageControl?.value" aria-label="post-message" mat-icon-button matSuffix
                   type="submit">
             <mat-icon>send</mat-icon>
           </button>
